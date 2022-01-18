@@ -16,7 +16,7 @@ module.exports = async function macro(arc, cfn) {
           Statement: [
             {
               Effect: 'Allow',
-              Action: ['ses:SendRawEmail'],
+              Action: ['ses:*'],
               Resource: '*',
             },
           ],
