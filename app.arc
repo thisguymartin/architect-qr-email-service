@@ -14,6 +14,5 @@ records
   email *String
   name **String
 
-
 @macros 
 add-policies ## modify your cloudformation during build timeto add SES policy permission

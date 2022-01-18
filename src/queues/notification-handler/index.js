@@ -1,23 +1,19 @@
 let QRCode = require('qrcode')
-var AWS = require('aws-sdk');
-
-
+let AWS = require('aws-sdk');
 
 exports.handler = async function queue(event) {
   try {
     console.info('incoming message to queue notification-handler', event)
     const AwsSes = new AWS.SES({ apiVersion: '2010-12-01' })
 
-
     // handle incoming event, which could come in as a array
     await Promise.all(event.Records.map(async record => {
-
 
       //save a record for each one and publish new event
       const parsedBody = JSON.parse(record.body)
       const qrcodeString = `https://twitter.com/${parsedBody.twitter}`
 
-      const base64qr = await new Promise((resolve, reject) => {
+      const base64qr = await new Promise((resolve, _reject) => {
         QRCode.toString(qrcodeString, { type: 'terminal' },
           function (err, QRcode) {
             if (err) return console.error("error occurred")
@@ -32,9 +28,7 @@ exports.handler = async function queue(event) {
       })
 
 
-
-
-      let sendPromise = await AwsSes.sendEmail({
+      const sendPromise = await AwsSes.sendEmail({
         Destination: {
           ToAddresses: [
             parsedBody.email,
@@ -44,11 +38,15 @@ exports.handler = async function queue(event) {
           Body: {
             Html: {
               Charset: "UTF-8",
-              Data: `<img src="${base64qr}" alt="Mountain View" />`
+              Data: `<img src="${base64qr}" alt=${parsedBody.twitter} />`
             },
+            Text: {
+              Charset: "UTF-8",
+              Data: qrcodeString
+            }
           },
           Subject: {
-            Data: 'architect qr email service'
+            Data: 'Architect QR Email Service ' + parsedBody.twitter
           }
         },
         Source: parsedBody.email,

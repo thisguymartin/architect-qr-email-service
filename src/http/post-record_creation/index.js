@@ -1,4 +1,3 @@
-
 let arc = require('@architect/functions')
 
 exports.handler = async function http(req) {
